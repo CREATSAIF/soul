@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MacBook Air 安卓手机远程控制器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        
+        .main-content {
+            padding: 30px;
+        }
+        
+        .status-bar {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .status-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #dc3545;
+        }
+        
+        .status-indicator.connected {
+            background: #28a745;
+        }
+        
+        .control-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .control-panel {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+        }
+        
+        .control-panel h3 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: #007bff;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #1e7e34;
+            transform: translateY(-2px);
+        }
+        
+        .btn-warning {
+            background: #ffc107;
+            color: #212529;
+        }
+        
+        .btn-warning:hover {
+            background: #e0a800;
+            transform: translateY(-2px);
+        }
+        
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background: #c82333;
+            transform: translateY(-2px);
+        }
+        
+        .input-group {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .form-control {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #007bff;
+            box-shadow: 0 0 0 0.2rem rgba(0,123,255,0.25);
+        }
+        
+        .screenshot-container {
+            text-align: center;
+            margin-top: 30px;
+        }
+        
+        .screenshot-img {
+            max-width: 100%;
+            max-height: 600px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            cursor: pointer;
+        }
+        
+        .message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+        
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .coordinate-display {
+            background: #e9ecef;
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 10px;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        
+        @media (max-width: 768px) {
+            .control-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .button-group {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 MacBook Air 安卓手机远程控制器</h1>
+            <p>通过Web界面轻松控制您的安卓设备</p>
+        </div>
+        
+        <div class="main-content">
+            <div class="status-bar">
+                <div class="status-info">
+                    <div class="status-indicator" id="statusIndicator"></div>
+                    <span id="statusText">设备未连接</span>
+                    <span id="deviceInfo"></span>
+                </div>
+                <div class="button-group">
+                    <button class="btn btn-primary" onclick="connectDevice()">连接设备</button>
+                    <button class="btn btn-warning" onclick="disconnectDevice()">断开连接</button>
+                    <button class="btn btn-success" onclick="startScrcpy()">启动屏幕镜像</button>
+                </div>
+            </div>
+            
+            <div id="messageContainer"></div>
+            
+            <div class="control-grid">
+                <div class="control-panel">
+                    <h3>🎮 基本控制</h3>
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="takeScreenshot()">📸 截图</button>
+                        <button class="btn btn-primary" onclick="pressHome()">🏠 Home</button>
+                        <button class="btn btn-primary" onclick="pressBack()">⬅️ 返回</button>
+                        <button class="btn btn-primary" onclick="pressMenu()">☰ 菜单</button>
+                    </div>
+                    
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="textInput" placeholder="输入文本">
+                        <button class="btn btn-primary" onclick="sendText()">发送</button>
+                    </div>
+                    
+                    <div class="input-group">
+                        <input type="number" class="form-control" id="tapX" placeholder="X坐标">
+                        <input type="number" class="form-control" id="tapY" placeholder="Y坐标">
+                        <button class="btn btn-primary" onclick="tapCoordinate()">点击</button>
+                    </div>
+                    
+                    <div id="coordinateDisplay" class="coordinate-display" style="display: none;">
+                        点击坐标: <span id="clickCoords">-</span>
+                    </div>
+                </div>
+                
+                <div class="control-panel">
+                    <h3>📱 应用管理</h3>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="packageName" placeholder="应用包名 (如: com.android.settings)">
+                        <button class="btn btn-success" onclick="launchApp()">启动</button>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button class="btn btn-primary" onclick="getCurrentActivity()">当前应用</button>
+                        <button class="btn btn-primary" onclick="getInstalledApps()">应用列表</button>
+                    </div>
+                    
+                    <div class="button-group">
+                        <button class="btn btn-success" onclick="openSettings()">⚙️ 设置</button>
+                        <button class="btn btn-success" onclick="openWeChat()">💬 微信</button>
+                        <button class="btn btn-success" onclick="openBrowser()">🌐 浏览器</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="screenshot-container">
+                <img id="screenshotImg" class="screenshot-img" style="display: none;" onclick="onScreenshotClick(event)">
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let deviceConnected = false;
+        let lastScreenshot = null;
+        
+        // 页面加载完成后检查状态
+        window.addEventListener('load', function() {
+            checkStatus();
+            setInterval(checkStatus, 5000); // 每5秒检查状态
+        });
+        
+        // 检查设备状态
+        async function checkStatus() {
+            try {
+                const response = await fetch('/api/status');
+                const data = await response.json();
+                
+                deviceConnected = data.connected;
+                updateStatusDisplay(data);
+            } catch (error) {
+                console.error('检查状态失败:', error);
+                updateStatusDisplay({ connected: false });
+            }
+        }
+        
+        // 更新状态显示
+        function updateStatusDisplay(data) {
+            const indicator = document.getElementById('statusIndicator');
+            const statusText = document.getElementById('statusText');
+            const deviceInfo = document.getElementById('deviceInfo');
+            
+            if (data.connected) {
+                indicator.classList.add('connected');
+                statusText.textContent = '设备已连接';
+                deviceInfo.textContent = data.device_info || '';
+            } else {
+                indicator.classList.remove('connected');
+                statusText.textContent = '设备未连接';
+                deviceInfo.textContent = '';
+            }
+        }
+        
+        // 连接设备
+        async function connectDevice() {
+            try {
+                showMessage('正在连接设备...', 'info');
+                const response = await fetch('/api/connect', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage(data.message, 'success');
+                    deviceConnected = true;
+                    checkStatus();
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('连接失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 断开连接
+        async function disconnectDevice() {
+            try {
+                const response = await fetch('/api/disconnect', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                showMessage(data.message, data.success ? 'success' : 'error');
+                
+                if (data.success) {
+                    deviceConnected = false;
+                    checkStatus();
+                }
+            } catch (error) {
+                showMessage('断开连接失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 启动屏幕镜像
+        async function startScrcpy() {
+            if (!deviceConnected) {
+                showMessage('请先连接设备', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/start_scrcpy', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                const data = await response.json();
+                showMessage(data.message, data.success ? 'success' : 'error');
+            } catch (error) {
+                showMessage('启动屏幕镜像失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 截图
+        async function takeScreenshot() {
+            if (!deviceConnected) {
+                showMessage('请先连接设备', 'error');
+                return;
+            }
+            
+            try {
+                showMessage('正在截图...', 'info');
+                const response = await fetch('/api/screenshot');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const img = document.getElementById('screenshotImg');
+                    img.src = data.image;
+                    img.style.display = 'block';
+                    showMessage('截图成功，点击图片可以点击对应位置', 'success');
+                    lastScreenshot = data.image;
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('截图失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 点击坐标
+        async function tapCoordinate() {
+            if (!deviceConnected) {
+                showMessage('请先连接设备', 'error');
+                return;
+            }
+            
+            const x = parseInt(document.getElementById('tapX').value);
+            const y = parseInt(document.getElementById('tapY').value);
+            
+            if (isNaN(x) || isNaN(y)) {
+                showMessage('请输入有效的坐标', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/tap', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ x, y })
+                });
+                
+                const data = await response.json();
+                showMessage(data.message, data.success ? 'success' : 'error');
+            } catch (error) {
+                showMessage('点击失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 发送文本
+        async function sendText() {
+            if (!deviceConnected) {
+                showMessage('请先连接设备', 'error');
+                return;
+            }
+            
+            const text = document.getElementById('textInput').value;
+            if (!text) {
+                showMessage('请输入文本', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/input_text', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ text })
+                });
+                
+                const data = await response.json();
+                showMessage(data.message, data.success ? 'success' : 'error');
+                
+                if (data.success) {
+                    document.getElementById('textInput').value = '';
+                }
+            } catch (error) {
+                showMessage('发送文本失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 按键操作
+        async function pressKey(key) {
+            if (!deviceConnected) {
+                showMessage('请先连接设备', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/key', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ key })
+                });
+                
+                const data = await response.json();
+                showMessage(data.message, data.success ? 'success' : 'error');
+            } catch (error) {
+                showMessage('按键失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 各种按键
+        function pressHome() { pressKey('home'); }
+        function pressBack() { pressKey('back'); }
+        function pressMenu() { pressKey('menu'); }
+        
+        // 启动应用
+        async function launchApp() {
+            if (!deviceConnected) {
+                showMessage('请先连接设备', 'error');
+                return;
+            }
+            
+            const packageName = document.getElementById('packageName').value;
+            if (!packageName) {
+                showMessage('请输入应用包名', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/launch_app', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ package_name: packageName })
+                });
+                
+                const data = await response.json();
+                showMessage(data.message, data.success ? 'success' : 'error');
+            } catch (error) {
+                showMessage('启动应用失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 快捷启动应用
+        function openSettings() {
+            document.getElementById('packageName').value = 'com.android.settings';
+            launchApp();
+        }
+        
+        function openWeChat() {
+            document.getElementById('packageName').value = 'com.tencent.mm';
+            launchApp();
+        }
+        
+        function openBrowser() {
+            document.getElementById('packageName').value = 'com.android.browser';
+            launchApp();
+        }
+        
+        // 获取当前应用
+        async function getCurrentActivity() {
+            if (!deviceConnected) {
+                showMessage('请先连接设备', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/current_activity');
+                const data = await response.json();
+                
+                if (data.success) {
+                    showMessage('当前Activity: ' + data.activity, 'success');
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('获取当前应用失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 获取应用列表
+        async function getInstalledApps() {
+            if (!deviceConnected) {
+                showMessage('请先连接设备', 'error');
+                return;
+            }
+            
+            try {
+                showMessage('正在获取应用列表...', 'info');
+                const response = await fetch('/api/apps');
+                const data = await response.json();
+                
+                if (data.success) {
+                    const apps = data.apps.slice(0, 10); // 只显示前10个
+                    const appList = apps.join('\n');
+                    showMessage(`应用列表 (前10个):\n${appList}`, 'success');
+                } else {
+                    showMessage(data.message, 'error');
+                }
+            } catch (error) {
+                showMessage('获取应用列表失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 点击截图
+        function onScreenshotClick(event) {
+            const img = event.target;
+            const rect = img.getBoundingClientRect();
+            const x = Math.round((event.clientX - rect.left) / rect.width * img.naturalWidth);
+            const y = Math.round((event.clientY - rect.top) / rect.height * img.naturalHeight);
+            
+            // 显示点击坐标
+            document.getElementById('clickCoords').textContent = `(${x}, ${y})`;
+            document.getElementById('coordinateDisplay').style.display = 'block';
+            
+            // 自动填充坐标
+            document.getElementById('tapX').value = x;
+            document.getElementById('tapY').value = y;
+            
+            // 执行点击
+            fetch('/api/tap', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ x, y })
+            }).then(response => response.json())
+            .then(data => {
+                showMessage(data.message, data.success ? 'success' : 'error');
+            });
+        }
+        
+        // 显示消息
+        function showMessage(message, type) {
+            const container = document.getElementById('messageContainer');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${type}`;
+            messageDiv.textContent = message;
+            
+            container.appendChild(messageDiv);
+            
+            // 自动移除消息
+            setTimeout(() => {
+                container.removeChild(messageDiv);
+            }, 5000);
+        }
+        
+        // 回车键发送文本
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('textInput').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    sendText();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
